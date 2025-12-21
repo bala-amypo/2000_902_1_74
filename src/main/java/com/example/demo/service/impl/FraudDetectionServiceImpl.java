@@ -44,7 +44,7 @@ public class FraudDetectionServiceImpl implements FraudDetectionService {
         List<FraudRule> allRules = fraudRuleRepository.findAll();
 
         for (FraudRule rule : allRules) {
-            if (ruleMatchesClaim(rule, claim)) { // implement comparison logic
+            if (ruleMatchesClaim(rule, claim)) {
                 isFraud = true;
                 triggeredRuleName = rule.getRuleName();
                 rejectionReason = "Rule triggered: " + rule.getRuleName();
@@ -57,13 +57,13 @@ public class FraudDetectionServiceImpl implements FraudDetectionService {
                 isFraud,
                 triggeredRuleName,
                 rejectionReason,
-                LocalDateTime.now() // ✅ checkedAt non-null
+                LocalDateTime.now() // ✅ ensure checkedAt is non-null
         );
 
         // Assign matched rules to result
         result.setMatchedRules(matchedRules);
 
-        // Optional: set bidirectional relationship
+        // Bidirectional mapping
         claim.setFraudCheckResult(result);
 
         return resultRepository.save(result);
@@ -77,24 +77,42 @@ public class FraudDetectionServiceImpl implements FraudDetectionService {
 
     // ------------------------
     // Helper method: evaluate a single rule
+    // Supports numeric claimAmount and text description rules
     // ------------------------
     private boolean ruleMatchesClaim(FraudRule rule, Claim claim) {
-        // Example: only checking claimAmount as integer
-        if ("claimAmount".equalsIgnoreCase(rule.getConditionField())) {
-            try {
-                double threshold = Double.parseDouble(rule.getValue());
-                switch (rule.getOperator()) {
-                    case ">": return claim.getClaimAmount() > threshold;
-                    case "<": return claim.getClaimAmount() < threshold;
-                    case ">=": return claim.getClaimAmount() >= threshold;
-                    case "<=": return claim.getClaimAmount() <= threshold;
-                    case "=": return claim.getClaimAmount().equals(threshold);
-                }
-            } catch (NumberFormatException e) {
-                return false;
+        if (rule.getConditionField() == null || rule.getOperator() == null || rule.getValue() == null)
+            return false;
+
+        String field = rule.getConditionField();
+        String operator = rule.getOperator();
+        String value = rule.getValue();
+
+        try {
+            switch (field) {
+                case "claimAmount":
+                    double claimValue = claim.getClaimAmount();
+                    double threshold = Double.parseDouble(value);
+                    switch (operator) {
+                        case ">": return claimValue > threshold;
+                        case "<": return claimValue < threshold;
+                        case ">=": return claimValue >= threshold;
+                        case "<=": return claimValue <= threshold;
+                        case "=": return claimValue == threshold;
+                    }
+                    break;
+
+                case "description":
+                    // simple substring check for description rules
+                    return "contains".equalsIgnoreCase(operator)
+                            && claim.getDescription() != null
+                            && claim.getDescription().contains(value);
+
+                default:
+                    return false; // unknown fields ignored
             }
+        } catch (Exception e) {
+            return false;
         }
-        // Extend for other condition fields if needed
         return false;
     }
 }
