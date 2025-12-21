@@ -38,7 +38,7 @@ public class HqlQueryHelper {
         return result.isEmpty() ? null : result.get(0);
     }
 
-    // ✅ Hidden test: high-value claims
+    
     public List<Claim> findHighValueClaims(double amount) {
         String hql = "SELECT c FROM Claim c WHERE c.claimAmount >= :amount";
         TypedQuery<Claim> query = entityManager.createQuery(hql, Claim.class);
@@ -46,7 +46,7 @@ public class HqlQueryHelper {
         return query.getResultList();
     }
 
-    // ✅ Hidden test: claims by description keyword
+    
     public List<Claim> findClaimsByDescriptionKeyword(String keyword) {
         String hql = "SELECT c FROM Claim c WHERE c.description LIKE :kw";
         TypedQuery<Claim> query = entityManager.createQuery(hql, Claim.class);
