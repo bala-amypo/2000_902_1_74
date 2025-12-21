@@ -2,10 +2,10 @@ package com.example.demo.dto;
 
 public class AuthRequest {
 
-    // Used only during registration
+   
     private String name;
 
-    // Login / registration email
+    
     private String email;
 
     // Raw password entered by user
