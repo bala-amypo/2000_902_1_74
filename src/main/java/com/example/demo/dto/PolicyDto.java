@@ -4,29 +4,29 @@ import java.time.LocalDate;
 
 public class PolicyDto {
 
-    // Policy id (response)
+    
     private Long id;
 
-    // Owner user id
+    
     private Long userId;
 
-    // Policy number
+   
     private String policyNumber;
 
-    // Policy type
+   
     private String policyType;
 
-    // Start date
+    
     private LocalDate startDate;
 
-    // End date
+    
     private LocalDate endDate;
 
-    // ✅ No-arg constructor
+    
     public PolicyDto() {
     }
 
-    // ✅ Parameterized constructor (optional but useful)
+    
     public PolicyDto(Long id,
                      Long userId,
                      String policyNumber,
@@ -41,7 +41,7 @@ public class PolicyDto {
         this.endDate = endDate;
     }
 
-    // ===== Getters & Setters =====
+  
 
     public Long getId() {
         return id;

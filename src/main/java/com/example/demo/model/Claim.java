@@ -19,7 +19,7 @@ public class Claim {
     private LocalDate claimDate;
     private Double claimAmount;
     private String description;
-    private String status; // PENDING, APPROVED, REJECTED
+    private String status; 
 
     // Many-to-many with FraudRule
     @ManyToMany
@@ -28,7 +28,7 @@ public class Claim {
             joinColumns = @JoinColumn(name = "claim_id"),
             inverseJoinColumns = @JoinColumn(name = "fraud_rule_id")
     )
-    private Set<FraudRule> suspectedRules = new HashSet<>(); // ✅ initialize
+    private Set<FraudRule> suspectedRules = new HashSet<>();
 
     // One-to-one with FraudCheckResult
     @OneToOne(mappedBy = "claim", cascade = CascadeType.ALL)

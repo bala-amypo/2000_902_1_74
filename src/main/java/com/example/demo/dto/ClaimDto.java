@@ -4,29 +4,29 @@ import java.time.LocalDate;
 
 public class ClaimDto {
 
-    // Claim id (response)
+    
     private Long id;
 
-    // Associated policy id
+    
     private Long policyId;
 
-    // Date of claim
+    
     private LocalDate claimDate;
 
-    // Amount claimed
+    
     private Double claimAmount;
 
-    // Claim description
+   
     private String description;
 
-    // PENDING, APPROVED, REJECTED
+   
     private String status;
 
-    // ✅ No-arg constructor
+    
     public ClaimDto() {
     }
 
-    // ✅ Parameterized constructor (optional but helpful)
+    
     public ClaimDto(Long id,
                     Long policyId,
                     LocalDate claimDate,

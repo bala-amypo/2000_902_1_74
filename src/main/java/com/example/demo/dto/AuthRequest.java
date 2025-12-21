@@ -8,14 +8,13 @@ public class AuthRequest {
     
     private String email;
 
-    // Raw password entered by user
+   
     private String password;
 
-    // ✅ No-arg constructor
+    
     public AuthRequest() {
     }
 
-    // ===== Getters & Setters =====
 
     public String getName() {
         return name;
@@ -37,7 +36,7 @@ public class AuthRequest {
         return password;
     }
 
-    // Raw password; hashing is done in service layer
+
     public void setPassword(String password) {
         this.password = password;
     }
