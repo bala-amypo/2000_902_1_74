@@ -44,7 +44,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse> handleGenericException(
             Exception ex) {
 
-        ApiErrorResponse error = new ApiResponse(
+        ApiResponse error = new ApiResponse(
                 LocalDateTime.now(),
                 "Internal server error",
                 ex.getMessage()
