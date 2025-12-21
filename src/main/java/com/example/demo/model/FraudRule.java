@@ -1,6 +1,7 @@
 package com.example.demo.model;
 
 import jakarta.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -11,36 +12,24 @@ public class FraudRule {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Unique rule name
-    @Column(unique = true, nullable = false)
+    @Column(unique = true)
     private String ruleName;
 
-    // Field to inspect (e.g., claimAmount)
     private String conditionField;
-
-    // Operator: >, <, >=, <=, =
     private String operator;
-
-    // Threshold value as string (e.g., "10000")
     private String value;
+    private String severity; // LOW, MEDIUM, HIGH
 
-    // LOW, MEDIUM, HIGH
-    private String severity;
-
-    // Many-to-many with Claim
+    // Many-to-many with Claim (inverse)
     @ManyToMany(mappedBy = "suspectedRules")
-    private Set<Claim> claims;
+    private Set<Claim> claims = new HashSet<>(); // ✅ initialize
 
-    // ✅ No-arg constructor (JPA requirement)
-    public FraudRule() {
-    }
+    // ------------------------
+    // Constructors
+    // ------------------------
+    public FraudRule() { }
 
-    // ✅ Parameterized constructor (used by testcases)
-    public FraudRule(String ruleName,
-                     String conditionField,
-                     String operator,
-                     String value,
-                     String severity) {
+    public FraudRule(String ruleName, String conditionField, String operator, String value, String severity) {
         this.ruleName = ruleName;
         this.conditionField = conditionField;
         this.operator = operator;
@@ -48,61 +37,27 @@ public class FraudRule {
         this.severity = severity;
     }
 
-    // ===== Getters & Setters =====
+    // ------------------------
+    // Getters & Setters
+    // ------------------------
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public Long getId() {
-        return id;
-    }
+    public String getRuleName() { return ruleName; }
+    public void setRuleName(String ruleName) { this.ruleName = ruleName; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public String getConditionField() { return conditionField; }
+    public void setConditionField(String conditionField) { this.conditionField = conditionField; }
 
-    public String getRuleName() {
-        return ruleName;
-    }
+    public String getOperator() { return operator; }
+    public void setOperator(String operator) { this.operator = operator; }
 
-    public void setRuleName(String ruleName) {
-        this.ruleName = ruleName;
-    }
+    public String getValue() { return value; }
+    public void setValue(String value) { this.value = value; }
 
-    public String getConditionField() {
-        return conditionField;
-    }
+    public String getSeverity() { return severity; }
+    public void setSeverity(String severity) { this.severity = severity; }
 
-    public void setConditionField(String conditionField) {
-        this.conditionField = conditionField;
-    }
-
-    public String getOperator() {
-        return operator;
-    }
-
-    public void setOperator(String operator) {
-        this.operator = operator;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
-
-    public String getSeverity() {
-        return severity;
-    }
-
-    public void setSeverity(String severity) {
-        this.severity = severity;
-    }
-
-    public Set<Claim> getClaims() {
-        return claims;
-    }
-
-    public void setClaims(Set<Claim> claims) {
-        this.claims = claims;
-    }
+    public Set<Claim> getClaims() { return claims; }
+    public void setClaims(Set<Claim> claims) { this.claims = claims; }
 }
