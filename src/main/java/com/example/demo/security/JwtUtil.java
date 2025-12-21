@@ -15,7 +15,7 @@ public class JwtUtil {
     private long expirationMillis = 24 * 60 * 60 * 1000; // 1 day
     private Key key = Keys.hmacShaKeyFor(secretKey.getBytes());
 
-    // Default no-arg constructor
+    
     public JwtUtil() { }
 
     // Hidden-test constructor: string + int

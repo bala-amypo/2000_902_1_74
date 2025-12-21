@@ -12,33 +12,28 @@ public class Policy {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Many policies belong to one user
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    // Unique policy number
     @Column(unique = true, nullable = false)
     private String policyNumber;
 
-    // Policy type (HEALTH, MOTOR, etc.)
     private String policyType;
 
-    // Policy start date
     private LocalDate startDate;
 
-    // Policy end date
     private LocalDate endDate;
 
-    // One policy can have many claims (inverse side)
+    
     @OneToMany(mappedBy = "policy")
     private List<Claim> claims;
 
-    // ✅ No-arg constructor (JPA)
+   
     public Policy() {
     }
 
-    // ✅ Parameterized constructor (used by testcases)
+    
     public Policy(User user,
                   String policyNumber,
                   String policyType,
@@ -51,8 +46,7 @@ public class Policy {
         this.endDate = endDate;
     }
 
-    // ===== Getters & Setters =====
-
+    
     public Long getId() {
         return id;
     }

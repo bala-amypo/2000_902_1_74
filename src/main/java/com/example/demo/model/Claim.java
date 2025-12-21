@@ -21,7 +21,6 @@ public class Claim {
     private String description;
     private String status; 
 
-    // Many-to-many with FraudRule
     @ManyToMany
     @JoinTable(
             name = "claim_suspected_rules",
@@ -30,13 +29,11 @@ public class Claim {
     )
     private Set<FraudRule> suspectedRules = new HashSet<>();
 
-    // One-to-one with FraudCheckResult
+   
     @OneToOne(mappedBy = "claim", cascade = CascadeType.ALL)
     private FraudCheckResult fraudCheckResult;
 
-    // ------------------------
-    // Constructors
-    // ------------------------
+   
     public Claim() { }
 
     public Claim(Policy policy, LocalDate claimDate, Double claimAmount, String description) {
@@ -47,9 +44,6 @@ public class Claim {
         this.status = "PENDING";
     }
 
-    // ------------------------
-    // Getters & Setters
-    // ------------------------
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
