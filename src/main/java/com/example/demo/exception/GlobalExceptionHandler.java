@@ -5,48 +5,49 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.context.request.WebRequest;
+
+import java.time.LocalDateTime;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // 404 - Resource not found
+    // 🔹 404 - Resource Not Found
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiResponse> handleResourceNotFound(
-            ResourceNotFoundException ex,
-            WebRequest request) {
+            ResourceNotFoundException ex) {
 
         ApiResponse error = new ApiResponse(
+                LocalDateTime.now(),
                 ex.getMessage(),
-                request.getDescription(false)
+                "Resource not found"
         );
 
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
-    // 400 - Validation errors
+    // 🔹 400 - Validation Errors
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiResponse> handleIllegalArgument(
-            IllegalArgumentException ex,
-            WebRequest request) {
+            IllegalArgumentException ex) {
 
         ApiResponse error = new ApiResponse(
+                LocalDateTime.now(),
                 ex.getMessage(),
-                request.getDescription(false)
+                "Invalid request"
         );
 
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
-    // 500 - Generic fallback
+    // 🔹 500 - Generic Errors
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse> handleAllExceptions(
-            Exception ex,
-            WebRequest request) {
+    public ResponseEntity<ApiResponse> handleGenericException(
+            Exception ex) {
 
-        ApiResponse error = new ApiResponse(
+        ApiErrorResponse error = new ApiResponse(
+                LocalDateTime.now(),
                 "Internal server error",
-                request.getDescription(false)
+                ex.getMessage()
         );
 
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
