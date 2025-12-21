@@ -60,11 +60,8 @@ public class FraudDetectionServiceImpl implements FraudDetectionService {
                 LocalDateTime.now() // ✅ ensure checkedAt is non-null
         );
 
-        // Assign matched rules to result
         result.setMatchedRules(matchedRules);
-
-        // Bidirectional mapping
-        claim.setFraudCheckResult(result);
+        claim.setFraudCheckResult(result); // bidirectional mapping
 
         return resultRepository.save(result);
     }
@@ -76,8 +73,8 @@ public class FraudDetectionServiceImpl implements FraudDetectionService {
     }
 
     // ------------------------
-    // Helper method: evaluate a single rule
-    // Supports numeric claimAmount and text description rules
+    // Helper method to evaluate a single rule against claim
+    // Supports numeric and description rules
     // ------------------------
     private boolean ruleMatchesClaim(FraudRule rule, Claim claim) {
         if (rule.getConditionField() == null || rule.getOperator() == null || rule.getValue() == null)
@@ -102,16 +99,15 @@ public class FraudDetectionServiceImpl implements FraudDetectionService {
                     break;
 
                 case "description":
-                    // simple substring check for description rules
                     return "contains".equalsIgnoreCase(operator)
                             && claim.getDescription() != null
                             && claim.getDescription().contains(value);
 
                 default:
-                    return false; // unknown fields ignored
+                    return false; // unknown field
             }
         } catch (Exception e) {
-            return false;
+            return false; // parsing errors return false
         }
         return false;
     }
