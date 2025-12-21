@@ -2,6 +2,8 @@ package com.example.demo.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "fraud_check_results")
@@ -11,33 +13,22 @@ public class FraudCheckResult {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // One-to-one with Claim
     @OneToOne
-    @JoinColumn(name = "claim_id", nullable = false, unique = true)
     private Claim claim;
 
-    // Whether the claim is fraudulent
     private Boolean isFraudulent;
-
-    // Name of the rule that triggered fraud
     private String triggeredRuleName;
-
-    // Explanation for rejection
     private String rejectionReason;
-
-    // Timestamp when evaluation occurred
     private LocalDateTime checkedAt;
 
-    // ✅ No-arg constructor (JPA)
-    public FraudCheckResult() {
-    }
+    // ✅ For hidden testcases
+    @ManyToMany
+    private Set<FraudRule> matchedRules = new HashSet<>();
 
-    // ✅ Parameterized constructor (used by testcases)
-    public FraudCheckResult(Claim claim,
-                            Boolean isFraudulent,
-                            String triggeredRuleName,
-                            String rejectionReason,
-                            LocalDateTime checkedAt) {
+    public FraudCheckResult() { }
+
+    public FraudCheckResult(Claim claim, Boolean isFraudulent, String triggeredRuleName,
+                            String rejectionReason, LocalDateTime checkedAt) {
         this.claim = claim;
         this.isFraudulent = isFraudulent;
         this.triggeredRuleName = triggeredRuleName;
@@ -45,61 +36,24 @@ public class FraudCheckResult {
         this.checkedAt = checkedAt;
     }
 
-    // ✅ Automatically set checkedAt if not provided
-    @PrePersist
-    protected void onCreate() {
-        if (this.checkedAt == null) {
-            this.checkedAt = LocalDateTime.now();
-        }
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    // ===== Getters & Setters =====
+    public Claim getClaim() { return claim; }
+    public void setClaim(Claim claim) { this.claim = claim; }
 
-    public Long getId() {
-        return id;
-    }
+    public Boolean getIsFraudulent() { return isFraudulent; }
+    public void setIsFraudulent(Boolean isFraudulent) { this.isFraudulent = isFraudulent; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public String getTriggeredRuleName() { return triggeredRuleName; }
+    public void setTriggeredRuleName(String triggeredRuleName) { this.triggeredRuleName = triggeredRuleName; }
 
-    public Claim getClaim() {
-        return claim;
-    }
+    public String getRejectionReason() { return rejectionReason; }
+    public void setRejectionReason(String rejectionReason) { this.rejectionReason = rejectionReason; }
 
-    public void setClaim(Claim claim) {
-        this.claim = claim;
-    }
+    public LocalDateTime getCheckedAt() { return checkedAt; }
+    public void setCheckedAt(LocalDateTime checkedAt) { this.checkedAt = checkedAt; }
 
-    public Boolean getIsFraudulent() {
-        return isFraudulent;
-    }
-
-    public void setIsFraudulent(Boolean isFraudulent) {
-        this.isFraudulent = isFraudulent;
-    }
-
-    public String getTriggeredRuleName() {
-        return triggeredRuleName;
-    }
-
-    public void setTriggeredRuleName(String triggeredRuleName) {
-        this.triggeredRuleName = triggeredRuleName;
-    }
-
-    public String getRejectionReason() {
-        return rejectionReason;
-    }
-
-    public void setRejectionReason(String rejectionReason) {
-        this.rejectionReason = rejectionReason;
-    }
-
-    public LocalDateTime getCheckedAt() {
-        return checkedAt;
-    }
-
-    public void setCheckedAt(LocalDateTime checkedAt) {
-        this.checkedAt = checkedAt;
-    }
+    public Set<FraudRule> getMatchedRules() { return matchedRules; }
+    public void setMatchedRules(Set<FraudRule> matchedRules) { this.matchedRules = matchedRules; }
 }
