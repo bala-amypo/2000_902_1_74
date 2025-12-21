@@ -11,7 +11,9 @@ import com.example.demo.service.FraudDetectionService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class FraudDetectionServiceImpl implements FraudDetectionService {
@@ -20,12 +22,9 @@ public class FraudDetectionServiceImpl implements FraudDetectionService {
     private final FraudRuleRepository fraudRuleRepository;
     private final FraudCheckResultRepository resultRepository;
 
-    // ✅ Constructor injection ONLY
-    public FraudDetectionServiceImpl(
-            ClaimRepository claimRepository,
-            FraudRuleRepository fraudRuleRepository,
-            FraudCheckResultRepository resultRepository) {
-
+    public FraudDetectionServiceImpl(ClaimRepository claimRepository,
+                                     FraudRuleRepository fraudRuleRepository,
+                                     FraudCheckResultRepository resultRepository) {
         this.claimRepository = claimRepository;
         this.fraudRuleRepository = fraudRuleRepository;
         this.resultRepository = resultRepository;
@@ -33,52 +32,39 @@ public class FraudDetectionServiceImpl implements FraudDetectionService {
 
     @Override
     public FraudCheckResult evaluateClaim(Long claimId) {
-
         Claim claim = claimRepository.findById(claimId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Claim not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Claim not found"));
 
-        List<FraudRule> rules = fraudRuleRepository.findAll();
+        boolean isFraud = false;
+        String triggeredRuleName = null;
+        String rejectionReason = null;
 
-        FraudCheckResult result = new FraudCheckResult();
-        result.setClaim(claim);
-        result.setCheckedAt(LocalDateTime.now());
+        Set<FraudRule> matchedRules = new HashSet<>();
 
-        boolean fraudDetected = false;
+        List<FraudRule> allRules = fraudRuleRepository.findAll();
 
-        for (FraudRule rule : rules) {
-
-            if ("claimAmount".equalsIgnoreCase(rule.getConditionField())) {
-
-                double threshold = Double.parseDouble(rule.getValue());
-                double claimAmount = claim.getClaimAmount();
-
-                boolean matched = switch (rule.getOperator()) {
-                    case ">" -> claimAmount > threshold;
-                    case "<" -> claimAmount < threshold;
-                    case ">=" -> claimAmount >= threshold;
-                    case "<=" -> claimAmount <= threshold;
-                    case "=" -> claimAmount == threshold;
-                    default -> false;
-                };
-
-                if (matched) {
-                    fraudDetected = true;
-                    result.setIsFraudulent(true);
-                    result.setTriggeredRuleName(rule.getRuleName());
-                    result.setRejectionReason(
-                            "Fraud detected due to rule: " + rule.getRuleName()
-                    );
-                    break;
-                }
+        for (FraudRule rule : allRules) {
+            if (ruleMatchesClaim(rule, claim)) { // implement comparison logic
+                isFraud = true;
+                triggeredRuleName = rule.getRuleName();
+                rejectionReason = "Rule triggered: " + rule.getRuleName();
+                matchedRules.add(rule);
             }
         }
 
-        if (!fraudDetected) {
-            result.setIsFraudulent(false);
-            result.setTriggeredRuleName(null);
-            result.setRejectionReason(null);
-        }
+        FraudCheckResult result = new FraudCheckResult(
+                claim,
+                isFraud,
+                triggeredRuleName,
+                rejectionReason,
+                LocalDateTime.now() // ✅ checkedAt non-null
+        );
+
+        // Assign matched rules to result
+        result.setMatchedRules(matchedRules);
+
+        // Optional: set bidirectional relationship
+        claim.setFraudCheckResult(result);
 
         return resultRepository.save(result);
     }
@@ -86,7 +72,29 @@ public class FraudDetectionServiceImpl implements FraudDetectionService {
     @Override
     public FraudCheckResult getResultByClaim(Long claimId) {
         return resultRepository.findByClaimId(claimId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Result not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Result not found"));
+    }
+
+    // ------------------------
+    // Helper method: evaluate a single rule
+    // ------------------------
+    private boolean ruleMatchesClaim(FraudRule rule, Claim claim) {
+        // Example: only checking claimAmount as integer
+        if ("claimAmount".equalsIgnoreCase(rule.getConditionField())) {
+            try {
+                double threshold = Double.parseDouble(rule.getValue());
+                switch (rule.getOperator()) {
+                    case ">": return claim.getClaimAmount() > threshold;
+                    case "<": return claim.getClaimAmount() < threshold;
+                    case ">=": return claim.getClaimAmount() >= threshold;
+                    case "<=": return claim.getClaimAmount() <= threshold;
+                    case "=": return claim.getClaimAmount().equals(threshold);
+                }
+            } catch (NumberFormatException e) {
+                return false;
+            }
+        }
+        // Extend for other condition fields if needed
+        return false;
     }
 }
