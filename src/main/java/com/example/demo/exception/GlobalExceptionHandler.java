@@ -1,6 +1,6 @@
 package com.example.demo.exception;
 
-import com.example.demo.dto.ApiResponse;
+import com.example.demo.dto.ApiErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -13,10 +13,10 @@ public class GlobalExceptionHandler {
 
     // 🔹 404 - Resource Not Found
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ApiResponse> handleResourceNotFound(
+    public ResponseEntity<ApiErrorResponse> handleResourceNotFound(
             ResourceNotFoundException ex) {
 
-        ApiResponse error = new ApiResponse(
+        ApiErrorResponse error = new ApiErrorResponse(
                 LocalDateTime.now(),
                 ex.getMessage(),
                 "Resource not found"
@@ -27,10 +27,10 @@ public class GlobalExceptionHandler {
 
     // 🔹 400 - Validation Errors
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ApiResponse> handleIllegalArgument(
+    public ResponseEntity<ApiErrorResponse> handleIllegalArgument(
             IllegalArgumentException ex) {
 
-        ApiResponse error = new ApiResponse(
+        ApiErrorResponse error = new ApiErrorResponse(
                 LocalDateTime.now(),
                 ex.getMessage(),
                 "Invalid request"
@@ -41,10 +41,10 @@ public class GlobalExceptionHandler {
 
     // 🔹 500 - Generic Errors
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse> handleGenericException(
+    public ResponseEntity<ApiErrorResponse> handleGenericException(
             Exception ex) {
 
-        ApiResponse error = new ApiResponse(
+        ApiErrorResponse error = new ApiErrorResponse(
                 LocalDateTime.now(),
                 "Internal server error",
                 ex.getMessage()

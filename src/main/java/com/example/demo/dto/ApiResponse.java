@@ -2,17 +2,17 @@ package com.example.demo.dto;
 
 import java.time.LocalDateTime;
 
-public class ApiResponse {
+public class ApiErrorResponse {
 
     private LocalDateTime timestamp;
     private String message;
     private String details;
 
-    public ApiResponse() {
+    public ApiErrorResponse() {
         this.timestamp = LocalDateTime.now();
     }
 
-    public ApiResponse(String message, String details) {
+    public ApiErrorResponse(String message, String details) {
         this.timestamp = LocalDateTime.now();
         this.message = message;
         this.details = details;
