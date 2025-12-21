@@ -16,7 +16,7 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
-    // ✅ Constructor injection ONLY
+    // Constructor injection
     public AuthController(UserService userService,
                           PasswordEncoder passwordEncoder,
                           JwtUtil jwtUtil) {
@@ -25,7 +25,7 @@ public class AuthController {
         this.jwtUtil = jwtUtil;
     }
 
-    // 🔹 POST /auth/register
+    // POST /auth/register
     @PostMapping("/register")
     public User register(@RequestBody AuthRequest request) {
 
@@ -39,7 +39,7 @@ public class AuthController {
         return userService.registerUser(user);
     }
 
-    // 🔹 POST /auth/login
+    // POST /auth/login
     @PostMapping("/login")
     public AuthResponse login(@RequestBody AuthRequest request) {
 
@@ -50,8 +50,8 @@ public class AuthController {
             throw new IllegalArgumentException("Invalid email or password");
         }
 
-        // Generate JWT
-        String token = jwtUtil.generateToken(user.getEmail());
+        // ✅ Generate JWT with correct 3 arguments
+        String token = jwtUtil.generateToken(user.getId(), user.getEmail(), user.getRole());
 
         return new AuthResponse(
                 token,
