@@ -4,39 +4,14 @@ import java.time.LocalDateTime;
 
 public class FraudCheckResultDto {
 
-    
     private Long claimId;
-
-    
     private Boolean isFraudulent;
-
-   
     private String triggeredRuleName;
-
-    
     private String rejectionReason;
-
-    
     private LocalDateTime checkedAt;
 
-   
-    public FraudCheckResultDto() {
-    }
-
     
-    public FraudCheckResultDto(Long claimId,
-                               Boolean isFraudulent,
-                               String triggeredRuleName,
-                               String rejectionReason,
-                               LocalDateTime checkedAt) {
-        this.claimId = claimId;
-        this.isFraudulent = isFraudulent;
-        this.triggeredRuleName = triggeredRuleName;
-        this.rejectionReason = rejectionReason;
-        this.checkedAt = checkedAt;
-    }
-
-   
+    private String matchedRules;
 
     public Long getClaimId() {
         return claimId;
@@ -76,5 +51,13 @@ public class FraudCheckResultDto {
 
     public void setCheckedAt(LocalDateTime checkedAt) {
         this.checkedAt = checkedAt;
+    }
+
+    public String getMatchedRules() {
+        return matchedRules;
+    }
+
+    public void setMatchedRules(String matchedRules) {
+        this.matchedRules = matchedRules;
     }
 }
