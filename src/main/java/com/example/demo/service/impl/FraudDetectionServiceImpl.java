@@ -11,55 +11,55 @@ import com.example.demo.service.FraudDetectionService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class FraudDetectionServiceImpl implements FraudDetectionService {
 
     private final ClaimRepository claimRepository;
     private final FraudRuleRepository fraudRuleRepository;
-    private final FraudCheckResultRepository resultRepository;
+    private final FraudCheckResultRepository fraudCheckResultRepository;
 
-    public FraudDetectionServiceImpl(ClaimRepository claimRepository,
-                                     FraudRuleRepository fraudRuleRepository,
-                                     FraudCheckResultRepository resultRepository) {
+    public FraudDetectionServiceImpl(
+            ClaimRepository claimRepository,
+            FraudRuleRepository fraudRuleRepository,
+            FraudCheckResultRepository fraudCheckResultRepository
+    ) {
         this.claimRepository = claimRepository;
         this.fraudRuleRepository = fraudRuleRepository;
-        this.resultRepository = resultRepository;
+        this.fraudCheckResultRepository = fraudCheckResultRepository;
     }
 
     @Override
     public FraudCheckResult evaluateClaim(Long claimId) {
+
         Claim claim = claimRepository.findById(claimId)
                 .orElseThrow(() -> new ResourceNotFoundException("Claim not found"));
 
-        List<FraudRule> allRules = fraudRuleRepository.findAll();
+        List<FraudRule> rules = fraudRuleRepository.findAll();
 
-        boolean isFraud = !allRules.isEmpty(); 
-        String triggeredRuleName = isFraud ? allRules.get(0).getRuleName() : null;
-        String rejectionReason = isFraud ? "Rule triggered: " + triggeredRuleName : null;
+        FraudCheckResult result = new FraudCheckResult();
+        result.setClaim(claim);
+        result.setCheckedAt(LocalDateTime.now());
 
-        Set<FraudRule> matchedRules = new HashSet<>(allRules); 
+        if (!rules.isEmpty()) {
+            String ruleNames = rules.stream()
+                    .map(FraudRule::getRuleName)
+                    .collect(Collectors.joining(","));
 
-        FraudCheckResult result = new FraudCheckResult(
-                claim,
-                isFraud,
-                triggeredRuleName,
-                rejectionReason,
-                LocalDateTime.now() // always non-null
-        );
+            result.setMatchedRules(ruleNames);  // ✅ STRING
+            result.setTriggeredRuleName(rules.get(0).getRuleName());
+            result.setRejectionReason("Rule triggered");
+        }
 
-        result.setMatchedRules(matchedRules);
-        claim.setFraudCheckResult(result); 
-
-        return resultRepository.save(result);
+        claim.setFraudCheckResult(result);
+        return fraudCheckResultRepository.save(result);
     }
 
     @Override
     public FraudCheckResult getResultByClaim(Long claimId) {
-        return resultRepository.findByClaimId(claimId)
-                .orElseThrow(() -> new ResourceNotFoundException("Result not found"));
+        return fraudCheckResultRepository.findByClaimId(claimId)
+                .orElseThrow(() -> new ResourceNotFoundException("Fraud result not found"));
     }
 }
